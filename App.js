@@ -5,6 +5,9 @@ import { AntDesign } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react'
 import CustomModal from './components/Modal';
 import ContactService from './api/contacts';
+import { useDispatch, useSelector, Provider } from 'react-redux'
+import { store } from './store';
+import { getContacts, selectContacts } from './slices/contacts';
 
 const styles = StyleSheet.create({
   container: {
@@ -18,10 +21,14 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function App() {
+export function App() {
+  const dispatch = useDispatch()
+
+  const contacts = useSelector(selectContacts)
+
   const [showModal, setShowModal] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null)
-  const [data, setData] = useState()
+  const [data, setData] = useState(contacts)
 
   const handleOpenModal = () => {
     setShowModal(true)
@@ -70,8 +77,12 @@ export default function App() {
   }
 
   useEffect(() => {
+    dispatch(getContacts())
+  }, [dispatch]);
+
+  useEffect(() => {
     refreshData()
-  }, []);
+  }, [contacts]);
 
   return (
     <NativeBaseProvider>
@@ -103,4 +114,12 @@ export default function App() {
       />}
     </NativeBaseProvider>
   );
+}
+
+export default () => {
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
+  )
 }
