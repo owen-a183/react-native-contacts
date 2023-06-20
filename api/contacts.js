@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = "https://contact.herokuapp.com/contact";
+export const BASE_URL = "https://contact.herokuapp.com/contact";
 
 const getAllContact = async () => {
   console.log('api get all called')
