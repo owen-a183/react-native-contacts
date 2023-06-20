@@ -1,13 +1,14 @@
 import { StyleSheet, View } from 'react-native';
 import Card from './components/Card'
-import { NativeBaseProvider, Box, Fab, Icon, FlatList, Text } from 'native-base'
-import { AntDesign } from '@expo/vector-icons';
+import { NativeBaseProvider, Box, Fab, Icon, FlatList, Text, HStack, Pressable, VStack } from 'native-base'
+import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react'
 import CustomModal from './components/Modal';
 import ContactService from './api/contacts';
 import { useDispatch, useSelector, Provider } from 'react-redux'
 import { store } from './store';
 import { getContacts, selectContacts } from './slices/contacts';
+import { SwipeListView } from 'react-native-swipe-list-view'
 
 const styles = StyleSheet.create({
   container: {
@@ -28,12 +29,16 @@ const inset = {
 
 export function App() {
   const dispatch = useDispatch()
-
   const contacts = useSelector(selectContacts)
 
   const [showModal, setShowModal] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null)
+  const [newListView, setNewListView] = useState(false)
   const [data, setData] = useState(contacts)
+
+  const handleChangeListView = () => {
+    setNewListView(!newListView)
+  }
 
   const handleOpenModal = () => {
     setShowModal(true)
@@ -81,6 +86,32 @@ export function App() {
     )
   }
 
+  const renderHiddenItem = (data, rowMap) => <HStack flex="1" pl="2">
+    <Pressable w="70" ml="auto" cursor="pointer" bg="green.400"
+      justifyContent="center"
+      onPress={() => handleSelectContact(data?.item?.id)} _pressed={{
+        opacity: 0.5
+      }}>
+      <VStack alignItems="center" space={2}>
+        <Icon color={'white'} as={AntDesign} name="edit" />
+        {/* <Icon as={<Entypo name="dots-three-horizontal" />} size="xs" color="coolGray.800" /> */}
+        <Text fontSize="xs" fontWeight="medium" color="coolGray.800">
+          Edit
+        </Text>
+      </VStack>
+    </Pressable>
+    <Pressable w="70" cursor="pointer" bg="red.400" justifyContent="center"
+      onPress={() => handleDeleteContact(data?.item?.id)} _pressed={{ opacity: 0.5 }
+      }>
+      <VStack alignItems="center" space={2}>
+        <Icon as={<MaterialIcons name="delete" />} color="white" size="xs" />
+        <Text color="white" fontSize="xs" fontWeight="medium">
+          Delete
+        </Text>
+      </VStack>
+    </Pressable>
+  </HStack>;
+
   useEffect(() => {
     dispatch(getContacts())
   }, [dispatch]);
@@ -92,13 +123,32 @@ export function App() {
   return (
     <NativeBaseProvider initialWindowMetrics={inset}>
       <View style={styles.container}>
-        <Box testID='contact-label' paddingX={'4'}><Text bold fontSize={'2xl'} >Contacts</Text></Box>
-        <FlatList
-          data={data}
-          renderItem={({ item }) => (
-            <Card item={item} handleDeleteContact={handleDeleteContact} handleSelectContact={handleSelectContact} />
-          )}
-        />
+        <Box testID='contact-label' paddingX={'4'}><Text bold fontSize={'2xl'}>Contacts</Text></Box>
+        {
+          newListView ?
+            <>
+              <Box paddingX={'4'}><Text fontSize={'sm'} color="gray.400">Slide a row to the left</Text></Box>
+              <Box paddingX={'4'}><Text fontSize={'sm'} color="gray.400">Please bear with the API, I think it's a little bit problematic</Text></Box>
+              <SwipeListView
+                data={data}
+                renderItem={({ item }) => (
+                  <Card item={item} handleDeleteContact={handleDeleteContact} handleSelectContact={handleSelectContact} newListView={newListView} />
+                )}
+                renderHiddenItem={renderHiddenItem}
+                rightOpenValue={-130}
+                previewRowKey={'0'}
+                previewOpenValue={-40}
+                previewOpenDelay={3000}
+              />
+            </>
+            :
+            <FlatList
+              data={data}
+              renderItem={({ item }) => (
+                <Card item={item} handleDeleteContact={handleDeleteContact} handleSelectContact={handleSelectContact} />
+              )}
+            />
+        }
       </View>
       <Fab
         renderInPortal={false}
@@ -106,6 +156,14 @@ export function App() {
         size="sm"
         onPress={() => handleOpenModal()}
         icon={<Icon color="white" as={AntDesign} name="plus" size="sm" />}
+      />
+      <Fab
+        renderInPortal={false}
+        shadow={2}
+        bottom={20}
+        size="sm"
+        onPress={() => handleChangeListView()}
+        icon={<Icon color="white" as={AntDesign} name="retweet" size="sm" />}
       />
       {showModal && <CustomModal
         showModal={showModal}
