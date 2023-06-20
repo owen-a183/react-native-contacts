@@ -1,7 +1,7 @@
 import { Button, Icon, Stack, HStack, Avatar, Heading, Text, Box} from 'native-base'
 import { AntDesign } from '@expo/vector-icons';
 
-export default Card = ({item, handleDeleteContact, handleSelectContact}) => {
+export default Card = ({item, handleDeleteContact, handleSelectContact, newListView}) => {
   return <Box alignItems="center">
     <Box overflow="hidden" width='100%'
       _android={{
@@ -32,12 +32,15 @@ export default Card = ({item, handleDeleteContact, handleSelectContact}) => {
               </Stack>
             </Stack>
           </Box>
-          <Box flex="1"  flexDirection="row" justifyContent={'flex-end'}>
+          {
+            !newListView && 
+            <Box flex="1"  flexDirection="row" justifyContent={'flex-end'}>
             <HStack paddingX={2} >
               <Button onPress={()=>handleSelectContact(item.id)}variant='ghost'><Icon color={'green.600'} as={AntDesign} name="edit"></Icon></Button>
               <Button onPress={()=>handleDeleteContact(item.id)} variant='ghost'><Icon color={'red.700'} as={AntDesign} name="delete"></Icon></Button>
             </HStack>
           </Box>
+          }
         </HStack>
       </Box>
     </Box>
