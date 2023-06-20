@@ -21,6 +21,11 @@ const styles = StyleSheet.create({
   },
 });
 
+const inset = {
+  frame: { x: 0, y: 0, width: 0, height: 0 },
+  insets: { top: 0, left: 0, right: 0, bottom: 0 },
+};
+
 export function App() {
   const dispatch = useDispatch()
 
@@ -85,9 +90,9 @@ export function App() {
   }, [contacts]);
 
   return (
-    <NativeBaseProvider>
+    <NativeBaseProvider initialWindowMetrics={inset}>
       <View style={styles.container}>
-        <Box paddingX={'4'}><Text bold fontSize={'2xl'}>Contacts</Text></Box>
+        <Box testID='contact-label' paddingX={'4'}><Text bold fontSize={'2xl'} >Contacts</Text></Box>
         <FlatList
           data={data}
           renderItem={({ item }) => (
